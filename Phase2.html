@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI & Health Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">BMI & Health Tracker</h3>
+            </div>
+            <div class="card-body">
+                <form id="healthForm" class="needs-validation" novalidate>
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label for="fullName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullName" required>
+                            <span class="text-danger small" id="nameError"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                            <span class="text-danger small" id="emailError"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Gender</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gender" id="male" value="male" required>
+                                    <label class="form-check-label" for="male">Male</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gender" id="female" value="female">
+                                    <label class="form-check-label" for="female">Female</label>
+                                </div>
+                            </div>
+                            <span class="text-danger small" id="genderError"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="age" class="form-label">Age</label>
+                            <input type="number" class="form-control" id="age" required min="1" max="120">
+                            <span class="text-danger small" id="ageError"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label for="weight" class="form-label">Weight (kg)</label>
+                            <input type="number" class="form-control" id="weight" required step="0.1">
+                            <span class="text-danger small" id="weightError"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="height" class="form-label">Height (cm)</label>
+                            <input type="number" class="form-control" id="height" required>
+                            <span class="text-danger small" id="heightError"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Activity Level</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="activity" id="sedentary" value="sedentary" required>
+                                <label class="form-check-label" for="sedentary">Sedentary</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="activity" id="moderate" value="moderate">
+                                <label class="form-check-label" for="moderate">Moderate</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="activity" id="active" value="active">
+                                <label class="form-check-label" for="active">Active</label>
+                            </div>
+                        </div>
+                        <span class="text-danger small" id="activityError"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Health Goals (Select at least one)</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="weightLoss" name="goals">
+                                <label class="form-check-label" for="weightLoss">Weight Loss</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="muscle" name="goals">
+                                <label class="form-check-label" for="muscle">Build Muscle</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="endurance" name="goals">
+                                <label class="form-check-label" for="endurance">Improve Endurance</label>
+                            </div>
+                        </div>
+                        <span class="text-danger small" id="goalsError"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="results" class="form-label">Health Analysis Report</label>
+                        <textarea class="form-control" id="results" rows="6" readonly></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Calculate BMI & Generate Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('healthForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let isValid = true;
+            let errorMessages = {};
+
+            document.querySelectorAll('.text-danger').forEach(span => span.textContent = '');
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.classList.remove('is-invalid', 'is-valid');
+            });
+
+            const name = document.getElementById('fullName').value.trim();
+            if (name.length < 2) {
+                errorMessages.name = 'Please enter a valid name (minimum 2 characters)';
+                isValid = false;
+            }
+
+            const email = document.getElementById('email').value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errorMessages.email = 'Please enter a valid email address';
+                isValid = false;
+            }
+
+            const gender = document.querySelector('input[name="gender"]:checked');
+            if (!gender) {
+                errorMessages.gender = 'Please select your gender';
+                isValid = false;
+            }
+
+            const age = parseInt(document.getElementById('age').value);
+            if (isNaN(age) || age < 1 || age > 120) {
+                errorMessages.age = 'Please enter a valid age between 1 and 120';
+                isValid = false;
+            }
+
+            const weight = parseFloat(document.getElementById('weight').value);
+            if (isNaN(weight) || weight < 20 || weight > 500) {
+                errorMessages.weight = 'Please enter a valid weight between 20 and 500 kg';
+                isValid = false;
+            }
+
+            const height = parseInt(document.getElementById('height').value);
+            if (isNaN(height) || height < 50 || height > 300) {
+                errorMessages.height = 'Please enter a valid height between 50 and 300 cm';
+                isValid = false;
+            }
+
+            const activity = document.querySelector('input[name="activity"]:checked');
+            if (!activity) {
+                errorMessages.activity = 'Please select an activity level';
+                isValid = false;
+            }
+
+            const goals = document.querySelectorAll('input[name="goals"]:checked');
+            if (goals.length === 0) {
+                errorMessages.goals = 'Please select at least one health goal';
+                isValid = false;
+            }
+
+            for (const [key, message] of Object.entries(errorMessages)) {
+                const errorSpan = document.getElementById(${key}Error);
+                if (errorSpan) {
+                    errorSpan.textContent = message;
+                    const input = document.getElementById(key);
+                    if (input) input.classList.add('is-invalid');
+                }
+            }
+
+            if (isValid) {
+                const bmi = weight / Math.pow(height/100, 2);
+                const bmiCategory = getBMICategory(bmi);
+                const bmr = calculateBMR(weight, height, age, gender.value, activity.value);
+                const report = generateReport(name, gender.value, bmi, bmiCategory, bmr, Array.from(goals).map(g => g.id));
+                document.getElementById('results').value = report;
+
+                document.querySelectorAll('.form-control').forEach(input => {
+                    input.classList.add('is-valid');
+                });
+            }
+        });
+
+        function getBMICategory(bmi) {
+            if (bmi < 18.5) return 'Underweight';
+            if (bmi < 25) return 'Normal weight';
+            if (bmi < 30) return 'Overweight';
+            return 'Obese';
+        }
+
+        function calculateBMR(weight, height, age, gender, activity) {
+            let bmr;
+            if (gender === 'male') {
+                bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+            } else {
+                bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+            }
+            
+            const multipliers = {
+                sedentary: 1.2,
+                moderate: 1.55,
+                active: 1.9
+            };
+            
+            return Math.round(bmr * multipliers[activity]);
+        }
+
+        function generateReport(name, gender, bmi, bmiCategory, bmr, goals) {
+            let report = Health Analysis Report for ${name}\n\n;
+            report += Gender: ${gender.charAt(0).toUpperCase() + gender.slice(1)}\n;
+            report += BMI: ${bmi.toFixed(1)} (${bmiCategory})\n;
+            report += Estimated Daily Calorie Needs: ${bmr} calories\n\n;
+            
+            report += 'Recommendations based on your goals:\n';
+            
+            if (goals.includes('weightLoss')) {
+                const weightLossCalories = bmr - 500;
+                report += - For weight loss: Aim for ${weightLossCalories} calories/day (500 calorie deficit)\n;
+            }
+            if (goals.includes('muscle')) {
+                const muscleGainCalories = bmr + 300;
+                report += - For muscle building: Aim for ${muscleGainCalories} calories/day with 1.6-2.2g protein/kg\n;
+            }
+            if (goals.includes('endurance')) {
+                report += '- For endurance: Include 150+ minutes of cardio exercise weekly\n';
+            }
+            
+            if (gender === 'female') {
+                report += '\nAdditional recommendations for women:\n';
+                report += '- Ensure adequate iron intake (18mg/day)\n';
+                report += '- Include calcium-rich foods (1000-1200mg/day)\n';
+            } else {
+                report += '\nAdditional recommendations for men:\n';
+                report += '- Ensure adequate protein intake (0.8-1.0g/kg for general health)\n';
+                report += '- Include zinc-rich foods (11mg/day)\n';
+            }
+            
+            return report;
+        }
+    </script>
+</body>
+</html>
