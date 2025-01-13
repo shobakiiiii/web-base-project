@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI & Lifestyle Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">BMI & Lifestyle Tracker</h3>
+            </div>
+            <div class="card-body">
+                <form id="bmiForm" novalidate>
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="fullName" required>
+                        <div class="text-danger small" id="nameError"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="weight" class="form-label">Weight (kg)</label>
+                        <input type="number" class="form-control" id="weight" required>
+                        <div class="text-danger small" id="weightError"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="height" class="form-label">Height (cm)</label>
+                        <input type="number" class="form-control" id="height" required>
+                        <div class="text-danger small" id="heightError"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Lifestyle</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="lifestyle" id="sedentary" value="sedentary" required>
+                                <label class="form-check-label" for="sedentary">Sedentary</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="lifestyle" id="moderate" value="moderate">
+                                <label class="form-check-label" for="moderate">Moderate</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="lifestyle" id="active" value="active">
+                                <label class="form-check-label" for="active">Active</label>
+                            </div>
+                        </div>
+                        <div class="text-danger small" id="lifestyleError"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Calculate BMI</button>
+                </form>
+
+                <div class="mt-4">
+                    <label for="results" class="form-label">Results</label>
+                    <textarea class="form-control" id="results" rows="4" readonly></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('bmiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('fullName').value.trim();
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseInt(document.getElementById('height').value);
+            const lifestyle = document.querySelector('input[name="lifestyle"]:checked');
+            let isValid = true;
+
+            // Reset errors
+            document.getElementById('nameError').textContent = '';
+            document.getElementById('weightError').textContent = '';
+            document.getElementById('heightError').textContent = '';
+            document.getElementById('lifestyleError').textContent = '';
+
+            if (name.length < 2) {
+                document.getElementById('nameError').textContent = 'Name must be at least 2 characters.';
+                isValid = false;
+            }
+            if (isNaN(weight) || weight <= 0) {
+                document.getElementById('weightError').textContent = 'Enter a valid weight.';
+                isValid = false;
+            }
+            if (isNaN(height) || height <= 0) {
+                document.getElementById('heightError').textContent = 'Enter a valid height.';
+                isValid = false;
+            }
+            if (!lifestyle) {
+                document.getElementById('lifestyleError').textContent = 'Please select your lifestyle.';
+                isValid = false;
+            }
+
+            if (isValid) {
+                const bmi = (weight / ((height / 100) ** 2)).toFixed(2);
+                const bmiCategory = getBMICategory(bmi);
+                const lifestyleText = lifestyle.nextElementSibling.textContent;
+                document.getElementById('results').value = `Name: ${name}\nBMI: ${bmi}\nCategory: ${bmiCategory}\nLifestyle: ${lifestyleText}`;
+            }
+        });
+
+        function getBMICategory(bmi) {
+            if (bmi < 18.5) return 'Underweight';
+            if (bmi < 24.9) return 'Normal weight';
+            if (bmi < 29.9) return 'Overweight';
+            return 'Obese';
+        }
+    </script>
+</body>
+</html>
